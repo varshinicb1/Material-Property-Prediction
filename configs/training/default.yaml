@@ -1,0 +1,25 @@
+deep:
+  epochs: 100
+  batch_size: 64
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  lr_scheduler: "cosine"
+  warmup_epochs: 5
+  patience: 20
+  gradient_clip: 1.0
+  use_compile: false  # set true if torch.compile supported
+
+cvae:
+  epochs: 150
+  batch_size: 64
+  learning_rate: 0.001
+  kl_annealing: true
+  kl_warmup_epochs: 20
+  physics_weight: 0.1
+  smoothness_weight: 0.05
+  patience: 30
+
+physics:
+  yield_uts_margin: 0.02
+  smoothness_penalty: 0.01
+  monotonic_penalty: 0.05

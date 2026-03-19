@@ -1,0 +1,38 @@
+n_samples: 2000
+n_stress_strain_points: 50
+test_size: 0.2
+val_size: 0.1
+random_state: 42
+noise_level: 0.05
+
+features:
+  welding:
+    - current_A
+    - voltage_V
+    - speed_mm_per_min
+    - heat_input_kJ_per_mm
+  filler:
+    - filler_C
+    - filler_Mn
+    - filler_Si
+    - filler_Cr
+    - filler_Ni
+    - filler_Mo
+    - filler_Ti
+  haz:
+    - haz_width_mm
+    - haz_peak_temp_C
+    - haz_cooling_rate
+    - grain_size_um
+  repair:
+    - repair_stage  # 0=R0, 1=R1, 2=R2, 3=R3
+
+targets:
+  scalar:
+    - yield_strength_MPa
+    - uts_MPa
+    - elongation_pct
+  curve:
+    - stress_strain_curve
+
+scaler_type: "standard"

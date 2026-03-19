@@ -1,0 +1,18 @@
+defaults:
+  - data: default
+  - model: default
+  - training: default
+  - _self_
+
+project:
+  name: "material_ai"
+  version: "1.0.0"
+  seed: 42
+  log_level: "INFO"
+  output_dir: "outputs"
+
+paths:
+  data_dir: "data"
+  models_dir: "models/saved"
+  logs_dir: "logs"
+  results_dir: "results"
