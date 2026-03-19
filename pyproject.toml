@@ -1,34 +1,69 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "material_ai"
+name = "material-ai"
 version = "1.0.0"
-description = "AI Framework for Material Property Prediction of TIG Welded Aerospace Structures"
-requires-python = ">=3.11"
+description = "AI-powered material property prediction for TIG welded aerospace structures"
 readme = "README.md"
-license = { text = "MIT" }
-authors = [{ name = "Material AI Team" }]
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Varshini CB", email = "varshinicb1@example.com"}
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "numpy>=1.21.0",
+    "pandas>=1.3.0",
+    "scikit-learn>=1.0.0",
+    "lightgbm>=3.3.0",
+    "torch>=1.10.0",
+    "pyyaml>=6.0",
+    "joblib>=1.1.0",
+]
+
+[project.optional-dependencies]
+gui = [
+    "streamlit>=1.28.0",
+    "plotly>=5.17.0",
+    "shap>=0.42.0",
+]
+api = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "prometheus-client>=0.17.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "mypy>=0.990",
+]
+
+[project.urls]
+Homepage = "https://github.com/varshinicb1/Material-Property-Prediction"
+Repository = "https://github.com/varshinicb1/Material-Property-Prediction"
+Issues = "https://github.com/varshinicb1/Material-Property-Prediction/issues"
 
 [project.scripts]
-material-ai = "material_ai.main:app"
+material-ai = "main:main"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["material_ai*"]
+[tool.setuptools]
+packages = ["inference", "models", "data", "explainability", "training", "utils", "api"]
+include-package-data = true
 
-[tool.black]
-line-length = 100
-target-version = ["py311"]
-
-[tool.ruff]
-line-length = 100
-select = ["E", "F", "W", "I", "N", "UP"]
-ignore = ["E501"]
-target-version = "py311"
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
+[tool.setuptools.package-data]
+"*" = ["*.yaml", "*.yml", "*.json"]
