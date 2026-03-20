@@ -39,14 +39,94 @@ class BatchPredictionResult:
 class BatchPredictor:
     """Efficient batch prediction interface."""
     
-    def __init__(self, models_dir: str = "models/saved"):
+    def __init__(self, models_dir_or_predictor: str | MaterialPredictor = "models/saved"):
         """Initialize batch predictor.
         
         Args:
-            models_dir: Directory containing trained models.
+            models_dir_or_predictor: Either a directory path containing trained models,
+                                     or an existing MaterialPredictor instance.
         """
-        self.predictor = MaterialPredictor(models_dir=models_dir)
+        if isinstance(models_dir_or_predictor, MaterialPredictor):
+            self.predictor = models_dir_or_predictor
+        else:
+            self.predictor = MaterialPredictor(models_dir=models_dir_or_predictor)
         logger.info("BatchPredictor initialized")
+    
+    def predict_batch(
+        self,
+        df,
+        show_progress: bool = False,
+    ):
+        """Predict on a pandas or polars DataFrame.
+        
+        Args:
+            df: DataFrame with required columns (pandas or polars).
+            show_progress: Whether to show progress bar.
+            
+        Returns:
+            DataFrame with predictions added.
+        """
+        import pandas as pd
+        
+        # Convert to pandas if needed
+        if hasattr(df, 'to_pandas'):  # Polars DataFrame
+            df = df.to_pandas()
+        elif not isinstance(df, pd.DataFrame):
+            df = pd.DataFrame(df)
+        
+        # Validate required columns
+        required_cols = [
+            'current_A', 'voltage_V', 'speed_mm_per_min',
+            'filler_C', 'filler_Mn', 'filler_Si', 'filler_Cr',
+            'filler_Ni', 'filler_Mo', 'filler_Ti',
+            'haz_width_mm', 'haz_peak_temp_C', 'haz_cooling_rate',
+            'grain_size_um', 'repair_stage'
+        ]
+        
+        missing = [col for col in required_cols if col not in df.columns]
+        if missing:
+            raise ValueError(f"Missing required columns: {missing}")
+        
+        # Run predictions
+        predictions = []
+        iterator = range(len(df))
+        if show_progress:
+            from tqdm import tqdm
+            iterator = tqdm(iterator, desc="Predicting")
+        
+        for i in iterator:
+            row = df.iloc[i]
+            # Use build_input to properly construct the input dict with heat_input
+            input_dict = self.predictor.build_input(
+                current_A=float(row['current_A']),
+                voltage_V=float(row['voltage_V']),
+                speed_mm_per_min=float(row['speed_mm_per_min']),
+                filler_C=float(row['filler_C']),
+                filler_Mn=float(row['filler_Mn']),
+                filler_Si=float(row['filler_Si']),
+                filler_Cr=float(row['filler_Cr']),
+                filler_Ni=float(row['filler_Ni']),
+                filler_Mo=float(row['filler_Mo']),
+                filler_Ti=float(row['filler_Ti']),
+                haz_width_mm=float(row['haz_width_mm']),
+                haz_peak_temp_C=float(row['haz_peak_temp_C']),
+                haz_cooling_rate=float(row['haz_cooling_rate']),
+                grain_size_um=float(row['grain_size_um']),
+                repair_stage=int(row['repair_stage']),
+            )
+            result = self.predictor.predict(input_dict)
+            predictions.append({
+                'predicted_yield_MPa': result.yield_strength_MPa,
+                'predicted_uts_MPa': result.uts_MPa,
+                'predicted_elongation_pct': result.elongation_pct,
+            })
+        
+        # Combine input and predictions
+        result_df = df.copy()
+        for key in predictions[0].keys():
+            result_df[key] = [p[key] for p in predictions]
+        
+        return result_df
     
     def predict_dataframe(
         self,
