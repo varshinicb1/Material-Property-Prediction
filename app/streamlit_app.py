@@ -327,11 +327,6 @@ if input_mode != "File Upload" and should_predict:
     except Exception as e:
         st.error(f"Prediction failed: {e}")
         st.info("Please check that models are trained. Run: python main.py train")
-            file_name="material_prediction.csv",
-            mime="text/csv"
-        )
-        
-        st.dataframe(export_df, use_container_width=True)
 
 # ========== BATCH RESULTS ==========
 
