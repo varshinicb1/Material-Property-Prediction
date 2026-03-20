@@ -155,21 +155,19 @@ def render_stress_strain_curve(strain, stress, ys, uts):
     
     fig.update_layout(
         title=dict(
-            text="<b>Engineering Stress-Strain Curve</b>",
-            font=dict(size=20, color="#2c3e50", family="Arial"),
+            text="Engineering Stress-Strain Curve",
+            font=dict(size=18, color="#2c3e50"),
             x=0.5,
             xanchor="center"
         ),
         xaxis=dict(
-            title="<b>Strain (%)</b>",
-            titlefont=dict(size=14),
+            title="Strain (%)",
             gridcolor="#e0e0e0",
             gridwidth=1,
             showgrid=True
         ),
         yaxis=dict(
-            title="<b>Stress (MPa)</b>",
-            titlefont=dict(size=14),
+            title="Stress (MPa)",
             gridcolor="#e0e0e0",
             gridwidth=1,
             showgrid=True
@@ -184,8 +182,8 @@ def render_stress_strain_curve(strain, stress, ys, uts):
 
 # ========== MAIN APP ==========
 
-st.title("🔬 Material AI: TIG Weld Property Predictor")
-st.markdown("**ISRO-Grade Professional ML System for Aerospace Material Property Prediction**")
+st.title("Material AI: TIG Weld Property Predictor")
+st.markdown("**Professional ML System for Aerospace Material Property Prediction**")
 st.markdown("---")
 
 # Check models
@@ -205,7 +203,7 @@ explainer = load_explainer(predictor)
 
 # ========== SIDEBAR: INPUT MODE ==========
 
-st.sidebar.title("⚙️ Input Configuration")
+st.sidebar.title("Input Configuration")
 input_mode = st.sidebar.radio(
     "Select input method:",
     ["Sliders", "Manual Entry", "File Upload"],
@@ -241,16 +239,16 @@ predict_btn = False
 # ========== INPUT MODES ==========
 
 if input_mode == "Sliders":
-    st.sidebar.markdown("### 🔧 Welding Parameters")
+    st.sidebar.markdown("### Welding Parameters")
     params['current_A'] = float(st.sidebar.slider("Current (A)", 80, 220, 150, 5))
     params['voltage_V'] = float(st.sidebar.slider("Voltage (V)", 10, 25, 15, 1))
     params['speed_mm_per_min'] = float(st.sidebar.slider("Travel Speed (mm/min)", 80, 300, 150, 10))
     
     heat_input = (params['current_A'] * params['voltage_V'] * 60.0) / (1000.0 * params['speed_mm_per_min'])
-    st.sidebar.metric("📊 Heat Input", f"{heat_input:.3f} kJ/mm")
+    st.sidebar.metric("Heat Input", f"{heat_input:.3f} kJ/mm")
     
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🧪 Filler Composition (wt%)")
+    st.sidebar.markdown("### Filler Composition (wt%)")
     
     with st.sidebar.expander("Main Elements", expanded=True):
         params['filler_C'] = st.slider("Carbon (C)", 0.01, 0.08, 0.03, 0.01, format="%.3f")
@@ -264,7 +262,7 @@ if input_mode == "Sliders":
         params['filler_Ti'] = st.slider("Titanium (Ti)", 0.0, 0.5, 0.1, 0.01, format="%.3f")
     
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🔥 HAZ Characteristics")
+    st.sidebar.markdown("### HAZ Characteristics")
     
     with st.sidebar.expander("Advanced Parameters", expanded=False):
         params['haz_width_mm'] = st.slider("HAZ Width (mm)", 0.2, 3.5, 1.2, 0.1)
@@ -273,7 +271,7 @@ if input_mode == "Sliders":
         params['grain_size_um'] = float(st.slider("Grain Size (μm)", 2, 80, 20, 1))
     
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🔄 Repair Stage")
+    st.sidebar.markdown("### Repair Stage")
     params['repair_stage'] = st.sidebar.selectbox(
         "Stage",
         options=[0, 1, 2, 3],
@@ -282,17 +280,17 @@ if input_mode == "Sliders":
     )
     
     st.sidebar.markdown("---")
-    predict_btn = st.sidebar.button("🚀 Predict Properties", type="primary", use_container_width=True)
+    predict_btn = st.sidebar.button("Predict Properties", type="primary", use_container_width=True)
 
 elif input_mode == "Manual Entry":
-    st.sidebar.markdown("### ✏️ Manual Entry")
+    st.sidebar.markdown("### Manual Entry")
     
-    with st.sidebar.expander("🔧 Welding Parameters", expanded=True):
+    with st.sidebar.expander("Welding Parameters", expanded=True):
         params['current_A'] = st.number_input("Current (A)", 80.0, 220.0, float(params['current_A']), 1.0)
         params['voltage_V'] = st.number_input("Voltage (V)", 10.0, 25.0, float(params['voltage_V']), 0.5)
         params['speed_mm_per_min'] = st.number_input("Travel Speed (mm/min)", 80.0, 300.0, float(params['speed_mm_per_min']), 5.0)
     
-    with st.sidebar.expander("🧪 Filler Composition (wt%)"):
+    with st.sidebar.expander("Filler Composition (wt%)"):
         params['filler_C'] = st.number_input("Carbon (C)", 0.01, 0.08, float(params['filler_C']), 0.001, format="%.3f")
         params['filler_Mn'] = st.number_input("Manganese (Mn)", 0.5, 2.0, float(params['filler_Mn']), 0.1)
         params['filler_Si'] = st.number_input("Silicon (Si)", 0.1, 0.8, float(params['filler_Si']), 0.05)
@@ -301,7 +299,7 @@ elif input_mode == "Manual Entry":
         params['filler_Mo'] = st.number_input("Molybdenum (Mo)", 0.0, 4.0, float(params['filler_Mo']), 0.1)
         params['filler_Ti'] = st.number_input("Titanium (Ti)", 0.0, 0.5, float(params['filler_Ti']), 0.01, format="%.3f")
     
-    with st.sidebar.expander("🔥 HAZ Characteristics"):
+    with st.sidebar.expander("HAZ Characteristics"):
         params['haz_width_mm'] = st.number_input("HAZ Width (mm)", 0.2, 3.5, float(params['haz_width_mm']), 0.1)
         params['haz_peak_temp_C'] = st.number_input("Peak Temperature (°C)", 600.0, 1400.0, float(params['haz_peak_temp_C']), 10.0)
         params['haz_cooling_rate'] = st.number_input("Cooling Rate (°C/s)", 10.0, 2000.0, float(params['haz_cooling_rate']), 10.0)
@@ -309,10 +307,10 @@ elif input_mode == "Manual Entry":
         params['repair_stage'] = st.selectbox("Repair Stage", [0, 1, 2, 3], index=int(params['repair_stage']))
     
     st.sidebar.markdown("---")
-    predict_btn = st.sidebar.button("🚀 Predict Properties", type="primary", use_container_width=True)
+    predict_btn = st.sidebar.button("Predict Properties", type="primary", use_container_width=True)
 
 else:  # File Upload
-    st.sidebar.markdown("### 📁 Upload CSV File")
+    st.sidebar.markdown("### Upload CSV File")
     st.sidebar.markdown("""
     **Required columns:**
     - `current_A`, `voltage_V`, `speed_mm_per_min`
@@ -328,19 +326,19 @@ else:  # File Upload
     if uploaded_file:
         try:
             df = pd.read_csv(uploaded_file)
-            st.sidebar.success(f"✅ Loaded {len(df)} samples")
+            st.sidebar.success(f"Loaded {len(df)} samples")
             st.sidebar.dataframe(df.head(3), use_container_width=True)
             
-            if st.sidebar.button("🚀 Run Batch Prediction", type="primary", use_container_width=True):
+            if st.sidebar.button("Run Batch Prediction", type="primary", use_container_width=True):
                 from inference.batch_predictor import BatchPredictor
                 batch_predictor = BatchPredictor(predictor)
                 
                 with st.spinner(f"Processing {len(df)} samples..."):
                     batch_results = batch_predictor.predict_batch(df)
                 
-                st.success(f"✅ Predicted {len(batch_results)} samples successfully!")
+                st.success(f"Predicted {len(batch_results)} samples successfully!")
         except Exception as e:
-            st.sidebar.error(f"❌ Error loading file: {e}")
+            st.sidebar.error(f"Error loading file: {e}")
             st.sidebar.info("Please check your CSV format matches the required columns.")
 
 # ========== PREDICTION ==========
@@ -371,12 +369,12 @@ if input_mode != "File Upload" and should_predict:
             repair_stage=params['repair_stage'],
         )
         
-        with st.spinner("🔄 Running ensemble prediction..."):
+        with st.spinner("Running ensemble prediction..."):
             result = predictor.predict(input_features)
         
         # ========== HERO METRICS (PROMINENT DISPLAY) ==========
         
-        st.markdown("## 📊 Predicted Mechanical Properties")
+        st.markdown("## Predicted Mechanical Properties")
         
         # Big, bold metrics at the top
         col1, col2, col3 = st.columns(3)
@@ -420,10 +418,10 @@ if input_mode != "File Upload" and should_predict:
         # ========== TABS ==========
         
         tab1, tab2, tab3, tab4 = st.tabs([
-            "📈 Stress-Strain Curve", 
-            "🔍 Feature Importance", 
-            "✅ Physics Validation",
-            "💾 Export Data"
+            "Stress-Strain Curve", 
+            "Feature Importance", 
+            "Physics Validation",
+            "Export Data"
         ])
         
         with tab1:
@@ -432,12 +430,12 @@ if input_mode != "File Upload" and should_predict:
             st.plotly_chart(fig, use_container_width=True)
             
             # Curve quality info
-            st.info("ℹ️ **Curve Quality:** Physics-based smoothing applied. Monotonic increase to UTS, gradual necking behavior.")
+            st.info("Curve Quality: Physics-based smoothing applied. Monotonic increase to UTS, gradual necking behavior.")
         
         with tab2:
             if explainer:
                 try:
-                    with st.spinner("🔄 Calculating SHAP values..."):
+                    with st.spinner("Calculating SHAP values..."):
                         X = np.array([[input_features[f] for f in explainer.feature_names]])
                         shap_values = explainer.explain_global(X, target='yield_strength_MPa')['yield_strength_MPa'][0]
                     
@@ -466,15 +464,15 @@ if input_mode != "File Upload" and should_predict:
                     )
                     st.plotly_chart(fig, use_container_width=True)
                     
-                    st.info("ℹ️ **Interpretation:** Positive SHAP values increase the prediction, negative values decrease it. Larger absolute values indicate stronger influence.")
+                    st.info("Interpretation: Positive SHAP values increase the prediction, negative values decrease it. Larger absolute values indicate stronger influence.")
                     
                 except Exception as e:
-                    st.warning(f"⚠️ SHAP explainability unavailable: {e}")
+                    st.warning(f"SHAP explainability unavailable: {e}")
             else:
-                st.info("ℹ️ SHAP explainability not available. Install with: `pip install shap`")
+                st.info("SHAP explainability not available. Install with: pip install shap")
         
         with tab3:
-            st.markdown("### 🔬 Physics-Based Validation")
+            st.markdown("### Physics-Based Validation")
             
             # Detailed validation with explanations
             ys_uts_pass = result.yield_strength_MPa < result.uts_MPa
@@ -485,24 +483,24 @@ if input_mode != "File Upload" and should_predict:
             
             checks = [
                 ("Yield < UTS", ys_uts_pass, 
-                 f"✅ {result.yield_strength_MPa:.1f} < {result.uts_MPa:.1f} MPa",
-                 "❌ Yield strength must be less than UTS"),
+                 f"PASS: {result.yield_strength_MPa:.1f} < {result.uts_MPa:.1f} MPa",
+                 "FAIL: Yield strength must be less than UTS"),
                 
                 ("Elongation > 0", elong_pass,
-                 f"✅ {result.elongation_pct:.2f}% (positive ductility)",
-                 "❌ Elongation must be positive"),
+                 f"PASS: {result.elongation_pct:.2f}% (positive ductility)",
+                 "FAIL: Elongation must be positive"),
                 
                 ("UTS in Range", uts_range_pass,
-                 f"✅ {result.uts_MPa:.1f} MPa (within 300-1600 MPa)",
-                 f"⚠️ {result.uts_MPa:.1f} MPa (outside typical range)"),
+                 f"PASS: {result.uts_MPa:.1f} MPa (within 300-1600 MPa)",
+                 f"WARNING: {result.uts_MPa:.1f} MPa (outside typical range)"),
                 
                 ("Yield in Range", ys_range_pass,
-                 f"✅ {result.yield_strength_MPa:.1f} MPa (within 200-1200 MPa)",
-                 f"⚠️ {result.yield_strength_MPa:.1f} MPa (outside typical range)"),
+                 f"PASS: {result.yield_strength_MPa:.1f} MPa (within 200-1200 MPa)",
+                 f"WARNING: {result.yield_strength_MPa:.1f} MPa (outside typical range)"),
                 
                 ("YS/UTS Ratio", ratio_pass,
-                 f"✅ {result.yield_strength_MPa / result.uts_MPa:.3f} (within 0.5-0.95)",
-                 f"⚠️ {result.yield_strength_MPa / result.uts_MPa:.3f} (unusual ratio)")
+                 f"PASS: {result.yield_strength_MPa / result.uts_MPa:.3f} (within 0.5-0.95)",
+                 f"WARNING: {result.yield_strength_MPa / result.uts_MPa:.3f} (unusual ratio)")
             ]
             
             for check_name, passed, pass_msg, fail_msg in checks:
@@ -514,12 +512,12 @@ if input_mode != "File Upload" and should_predict:
             # Overall assessment
             all_critical_pass = ys_uts_pass and elong_pass
             if all_critical_pass:
-                st.success("✅ **Overall Assessment:** All critical physics checks passed. Predictions are physically valid.")
+                st.success("Overall Assessment: All critical physics checks passed. Predictions are physically valid.")
             else:
-                st.error("❌ **Overall Assessment:** Some critical checks failed. Review predictions carefully.")
+                st.error("Overall Assessment: Some critical checks failed. Review predictions carefully.")
         
         with tab4:
-            st.markdown("### 💾 Export Prediction Results")
+            st.markdown("### Export Prediction Results")
             
             export_df = pd.DataFrame([{
                 **params,
@@ -531,26 +529,26 @@ if input_mode != "File Upload" and should_predict:
             
             csv = export_df.to_csv(index=False)
             st.download_button(
-                label="📥 Download Prediction as CSV",
+                label="Download Prediction as CSV",
                 data=csv,
                 file_name=f"material_prediction_R{params['repair_stage']}.csv",
                 mime="text/csv",
                 use_container_width=True
             )
             
-            st.markdown("### 📋 Preview")
+            st.markdown("### Preview")
             st.dataframe(export_df, use_container_width=True)
     
     except Exception as e:
-        st.error(f"❌ Prediction failed: {e}")
-        st.info("Please check that models are trained. Run: `python main.py train`")
-        with st.expander("🐛 Debug Information"):
+        st.error(f"Prediction failed: {e}")
+        st.info("Please check that models are trained. Run: python main.py train")
+        with st.expander("Debug Information"):
             st.code(traceback.format_exc())
 
 # ========== BATCH RESULTS ==========
 
 if batch_results is not None:
-    st.markdown(f"## 📊 Batch Prediction Results ({len(batch_results)} samples)")
+    st.markdown(f"## Batch Prediction Results ({len(batch_results)} samples)")
     
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Average Yield", f"{batch_results['predicted_yield_MPa'].mean():.1f} MPa")
@@ -563,7 +561,7 @@ if batch_results is not None:
     
     csv = batch_results.to_csv(index=False)
     st.download_button(
-        label="📥 Download Batch Results as CSV",
+        label="Download Batch Results as CSV",
         data=csv,
         file_name="batch_predictions.csv",
         mime="text/csv",
@@ -575,8 +573,8 @@ if batch_results is not None:
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #7f8c8d; font-size: 0.9em; padding: 20px;'>
-    <p><b>Material AI v1.0.0</b> | ISRO-Grade Ensemble ML for TIG Weld Property Prediction</p>
+    <p><b>Material AI v1.0.0</b> | Ensemble ML for TIG Weld Property Prediction</p>
     <p>Powered by LightGBM + FT-Transformer + CVAE | 18ms prediction time | Physics-validated</p>
-    <p>🔬 Developed for aerospace-grade material characterization</p>
+    <p>Developed for aerospace-grade material characterization</p>
 </div>
 """, unsafe_allow_html=True)
