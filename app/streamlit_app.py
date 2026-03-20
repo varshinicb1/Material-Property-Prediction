@@ -107,13 +107,21 @@ st.sidebar.markdown("---")
 # Initialize session state for manual entry
 if 'params' not in st.session_state:
     st.session_state.params = {
-        'current_A': 150.0, 'voltage_V': 12.0, 'speed_mm_per_min': 150.0,
-        'wire_feed_m_per_min': 2.5, 'gas_flow_L_per_min': 12.0,
-        'preheat_temp_C': 100.0, 'interpass_temp_C': 150.0,
-        'heat_input_kJ_per_mm': 0.6, 'cooling_rate': 5.0,
-        'haz_cooling_rate': 8.0, 'base_metal_yield_MPa': 250.0,
-        'base_metal_uts_MPa': 500.0, 'repair_stage': 0,
-        'weld_bead_width_mm': 8.0, 'weld_bead_height_mm': 3.0,
+        'current_A': 150.0,
+        'voltage_V': 12.0,
+        'speed_mm_per_min': 150.0,
+        'wire_feed_m_per_min': 2.5,
+        'gas_flow_L_per_min': 12.0,
+        'preheat_temp_C': 100.0,
+        'interpass_temp_C': 150.0,
+        'heat_input_kJ_per_mm': 0.6,
+        'cooling_rate': 5.0,
+        'haz_cooling_rate': 8.0,
+        'base_metal_yield_MPa': 250.0,
+        'base_metal_uts_MPa': 500.0,
+        'repair_stage': 0,
+        'weld_bead_width_mm': 8.0,
+        'weld_bead_height_mm': 3.0,
         'dilution_ratio': 0.3
     }
 
@@ -124,22 +132,22 @@ batch_results = None
 
 if input_mode == "Sliders":
     st.sidebar.subheader("Welding Parameters")
-    params['current_A'] = st.sidebar.slider("Current (A)", 80, 300, 150, 5)
-    params['voltage_V'] = st.sidebar.slider("Voltage (V)", 8, 20, 12, 1)
-    params['speed_mm_per_min'] = st.sidebar.slider("Travel Speed (mm/min)", 80, 300, 150, 10)
+    params['current_A'] = float(st.sidebar.slider("Current (A)", 80, 300, 150, 5))
+    params['voltage_V'] = float(st.sidebar.slider("Voltage (V)", 8, 20, 12, 1))
+    params['speed_mm_per_min'] = float(st.sidebar.slider("Travel Speed (mm/min)", 80, 300, 150, 10))
     params['wire_feed_m_per_min'] = st.sidebar.slider("Wire Feed (m/min)", 1.0, 5.0, 2.5, 0.1)
     params['gas_flow_L_per_min'] = st.sidebar.slider("Gas Flow (L/min)", 8.0, 25.0, 12.0, 0.5)
     
     st.sidebar.subheader("Thermal Parameters")
-    params['preheat_temp_C'] = st.sidebar.slider("Preheat Temp (°C)", 20, 400, 100, 10)
-    params['interpass_temp_C'] = st.sidebar.slider("Interpass Temp (°C)", 50, 450, 150, 10)
+    params['preheat_temp_C'] = float(st.sidebar.slider("Preheat Temp (°C)", 20, 400, 100, 10))
+    params['interpass_temp_C'] = float(st.sidebar.slider("Interpass Temp (°C)", 50, 450, 150, 10))
     params['heat_input_kJ_per_mm'] = st.sidebar.slider("Heat Input (kJ/mm)", 0.2, 4.0, 0.6, 0.1)
     params['cooling_rate'] = st.sidebar.slider("Cooling Rate (°C/s)", 1.0, 30.0, 5.0, 0.5)
     params['haz_cooling_rate'] = st.sidebar.slider("HAZ Cooling Rate (°C/s)", 2.0, 40.0, 8.0, 1.0)
     
     st.sidebar.subheader("Base Material")
-    params['base_metal_yield_MPa'] = st.sidebar.slider("Base Yield (MPa)", 150, 400, 250, 10)
-    params['base_metal_uts_MPa'] = st.sidebar.slider("Base UTS (MPa)", 400, 800, 500, 10)
+    params['base_metal_yield_MPa'] = float(st.sidebar.slider("Base Yield (MPa)", 150, 400, 250, 10))
+    params['base_metal_uts_MPa'] = float(st.sidebar.slider("Base UTS (MPa)", 400, 800, 500, 10))
     params['repair_stage'] = st.sidebar.selectbox("Repair Stage", [0, 1, 2, 3, 4, 5])
     
     st.sidebar.subheader("Weld Geometry")
@@ -153,26 +161,26 @@ elif input_mode == "Manual Entry":
     st.sidebar.subheader("Enter Values Manually")
     
     with st.sidebar.expander("Welding Parameters", expanded=True):
-        params['current_A'] = st.number_input("Current (A)", 80.0, 300.0, params['current_A'])
-        params['voltage_V'] = st.number_input("Voltage (V)", 8.0, 20.0, params['voltage_V'])
-        params['speed_mm_per_min'] = st.number_input("Travel Speed (mm/min)", 80.0, 300.0, params['speed_mm_per_min'])
-        params['wire_feed_m_per_min'] = st.number_input("Wire Feed (m/min)", 1.0, 5.0, params['wire_feed_m_per_min'])
-        params['gas_flow_L_per_min'] = st.number_input("Gas Flow (L/min)", 8.0, 25.0, params['gas_flow_L_per_min'])
+        params['current_A'] = st.number_input("Current (A)", 80.0, 300.0, float(params['current_A']))
+        params['voltage_V'] = st.number_input("Voltage (V)", 8.0, 20.0, float(params['voltage_V']))
+        params['speed_mm_per_min'] = st.number_input("Travel Speed (mm/min)", 80.0, 300.0, float(params['speed_mm_per_min']))
+        params['wire_feed_m_per_min'] = st.number_input("Wire Feed (m/min)", 1.0, 5.0, float(params['wire_feed_m_per_min']))
+        params['gas_flow_L_per_min'] = st.number_input("Gas Flow (L/min)", 8.0, 25.0, float(params['gas_flow_L_per_min']))
     
     with st.sidebar.expander("Thermal Parameters"):
-        params['preheat_temp_C'] = st.number_input("Preheat Temp (°C)", 20.0, 400.0, params['preheat_temp_C'])
-        params['interpass_temp_C'] = st.number_input("Interpass Temp (°C)", 50.0, 450.0, params['interpass_temp_C'])
-        params['heat_input_kJ_per_mm'] = st.number_input("Heat Input (kJ/mm)", 0.2, 4.0, params['heat_input_kJ_per_mm'])
-        params['cooling_rate'] = st.number_input("Cooling Rate (°C/s)", 1.0, 30.0, params['cooling_rate'])
-        params['haz_cooling_rate'] = st.number_input("HAZ Cooling Rate (°C/s)", 2.0, 40.0, params['haz_cooling_rate'])
+        params['preheat_temp_C'] = st.number_input("Preheat Temp (°C)", 20.0, 400.0, float(params['preheat_temp_C']))
+        params['interpass_temp_C'] = st.number_input("Interpass Temp (°C)", 50.0, 450.0, float(params['interpass_temp_C']))
+        params['heat_input_kJ_per_mm'] = st.number_input("Heat Input (kJ/mm)", 0.2, 4.0, float(params['heat_input_kJ_per_mm']))
+        params['cooling_rate'] = st.number_input("Cooling Rate (°C/s)", 1.0, 30.0, float(params['cooling_rate']))
+        params['haz_cooling_rate'] = st.number_input("HAZ Cooling Rate (°C/s)", 2.0, 40.0, float(params['haz_cooling_rate']))
     
     with st.sidebar.expander("Base Material & Geometry"):
-        params['base_metal_yield_MPa'] = st.number_input("Base Yield (MPa)", 150.0, 400.0, params['base_metal_yield_MPa'])
-        params['base_metal_uts_MPa'] = st.number_input("Base UTS (MPa)", 400.0, 800.0, params['base_metal_uts_MPa'])
-        params['repair_stage'] = st.selectbox("Repair Stage", [0, 1, 2, 3, 4, 5], index=params['repair_stage'])
-        params['weld_bead_width_mm'] = st.number_input("Bead Width (mm)", 4.0, 15.0, params['weld_bead_width_mm'])
-        params['weld_bead_height_mm'] = st.number_input("Bead Height (mm)", 1.5, 6.0, params['weld_bead_height_mm'])
-        params['dilution_ratio'] = st.number_input("Dilution Ratio", 0.1, 0.6, params['dilution_ratio'])
+        params['base_metal_yield_MPa'] = st.number_input("Base Yield (MPa)", 150.0, 400.0, float(params['base_metal_yield_MPa']))
+        params['base_metal_uts_MPa'] = st.number_input("Base UTS (MPa)", 400.0, 800.0, float(params['base_metal_uts_MPa']))
+        params['repair_stage'] = st.selectbox("Repair Stage", [0, 1, 2, 3, 4, 5], index=int(params['repair_stage']))
+        params['weld_bead_width_mm'] = st.number_input("Bead Width (mm)", 4.0, 15.0, float(params['weld_bead_width_mm']))
+        params['weld_bead_height_mm'] = st.number_input("Bead Height (mm)", 1.5, 6.0, float(params['weld_bead_height_mm']))
+        params['dilution_ratio'] = st.number_input("Dilution Ratio", 0.1, 0.6, float(params['dilution_ratio']))
     
     predict_btn = st.sidebar.button("Predict Properties", type="primary")
 
