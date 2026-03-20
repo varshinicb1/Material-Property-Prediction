@@ -220,96 +220,113 @@ else:  # File Upload
 
 # ========== PREDICTION ==========
 
-if input_mode != "File Upload" and predict_btn:
+# Auto-run prediction with default values or when button is clicked
+should_predict = predict_btn or (input_mode != "File Upload" and 'last_prediction' not in st.session_state)
+
+if input_mode != "File Upload" and should_predict:
+    # Mark that we've done initial prediction
+    if 'last_prediction' not in st.session_state:
+        st.session_state.last_prediction = True
+    
     # Convert speed from mm/min to mm/s for predictor
     speed_mm_s = params['speed_mm_per_min'] / 60.0
     
-    input_features = predictor.build_input(
-        current_A=params['current_A'],
-        voltage_V=params['voltage_V'],
-        speed_mm_per_min=params['speed_mm_per_min'],
-        wire_feed_m_per_min=params['wire_feed_m_per_min'],
-        gas_flow_L_per_min=params['gas_flow_L_per_min'],
-        preheat_temp_C=params['preheat_temp_C'],
-        interpass_temp_C=params['interpass_temp_C'],
-        heat_input_kJ_per_mm=params['heat_input_kJ_per_mm'],
-        cooling_rate=params['cooling_rate'],
-        haz_cooling_rate=params['haz_cooling_rate'],
-        base_metal_yield_MPa=params['base_metal_yield_MPa'],
-        base_metal_uts_MPa=params['base_metal_uts_MPa'],
-        repair_stage=params['repair_stage'],
-        weld_bead_width_mm=params['weld_bead_width_mm'],
-        weld_bead_height_mm=params['weld_bead_height_mm'],
-        dilution_ratio=params['dilution_ratio'],
-    )
-    
-    with st.spinner("Running prediction..."):
-        result = predictor.predict(input_features)
-    
-    # Display results
-    st.subheader("Predicted Mechanical Properties")
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Yield Strength", f"{result.yield_strength_MPa:.1f} MPa")
-    col2.metric("UTS", f"{result.uts_MPa:.1f} MPa")
-    col3.metric("Elongation", f"{result.elongation_pct:.2f} %")
-    col4.metric("YS/UTS Ratio", f"{result.yield_strength_MPa / result.uts_MPa:.3f}")
-    
-    st.markdown("---")
-    
-    # Tabs
-    tab1, tab2, tab3 = st.tabs(["Stress-Strain Curve", "Feature Importance", "Export Data"])
-    
-    with tab1:
-        fig = render_stress_strain_curve(result.strain, result.stress, 
-                                        result.yield_strength_MPa, result.uts_MPa)
-        st.plotly_chart(fig, use_container_width=True)
+    try:
+        input_features = predictor.build_input(
+            current_A=params['current_A'],
+            voltage_V=params['voltage_V'],
+            speed_mm_per_min=params['speed_mm_per_min'],
+            wire_feed_m_per_min=params['wire_feed_m_per_min'],
+            gas_flow_L_per_min=params['gas_flow_L_per_min'],
+            preheat_temp_C=params['preheat_temp_C'],
+            interpass_temp_C=params['interpass_temp_C'],
+            heat_input_kJ_per_mm=params['heat_input_kJ_per_mm'],
+            cooling_rate=params['cooling_rate'],
+            haz_cooling_rate=params['haz_cooling_rate'],
+            base_metal_yield_MPa=params['base_metal_yield_MPa'],
+            base_metal_uts_MPa=params['base_metal_uts_MPa'],
+            repair_stage=params['repair_stage'],
+            weld_bead_width_mm=params['weld_bead_width_mm'],
+            weld_bead_height_mm=params['weld_bead_height_mm'],
+            dilution_ratio=params['dilution_ratio'],
+        )
         
-        # Physics validation
-        st.subheader("Physics Validation")
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Yield < UTS", "PASS" if result.yield_strength_MPa < result.uts_MPa else "FAIL")
-        col2.metric("Elongation > 0", "PASS" if result.elongation_pct > 0 else "FAIL")
-        col3.metric("UTS < 1600 MPa", "PASS" if result.uts_MPa < 1600 else "FAIL")
-    
-    with tab2:
-        if explainer:
-            try:
-                shap_values = explainer.explain(input_features)
-                importance_df = pd.DataFrame({
-                    'Feature': explainer.feature_names,
-                    'SHAP Value': shap_values[0]
-                }).sort_values('SHAP Value', key=abs, ascending=False).head(10)
-                
-                fig = go.Figure(go.Bar(
-                    x=importance_df['SHAP Value'],
-                    y=importance_df['Feature'],
-                    orientation='h',
-                    marker=dict(color='#1f77b4')
-                ))
-                fig.update_layout(
-                    title="Top 10 Feature Importance (SHAP)",
-                    xaxis_title="SHAP Value",
-                    yaxis_title="Feature",
-                    height=400
-                )
-                st.plotly_chart(fig, use_container_width=True)
-            except:
+        with st.spinner("Running prediction..."):
+            result = predictor.predict(input_features)
+        
+        # Display results
+        st.subheader("Predicted Mechanical Properties")
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Yield Strength", f"{result.yield_strength_MPa:.1f} MPa")
+        col2.metric("UTS", f"{result.uts_MPa:.1f} MPa")
+        col3.metric("Elongation", f"{result.elongation_pct:.2f} %")
+        col4.metric("YS/UTS Ratio", f"{result.yield_strength_MPa / result.uts_MPa:.3f}")
+        
+        st.markdown("---")
+        
+        # Tabs
+        tab1, tab2, tab3 = st.tabs(["Stress-Strain Curve", "Feature Importance", "Export Data"])
+        
+        with tab1:
+            fig = render_stress_strain_curve(result.strain, result.stress, 
+                                            result.yield_strength_MPa, result.uts_MPa)
+            st.plotly_chart(fig, use_container_width=True)
+            
+            # Physics validation
+            st.subheader("Physics Validation")
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Yield < UTS", "PASS" if result.yield_strength_MPa < result.uts_MPa else "FAIL")
+            col2.metric("Elongation > 0", "PASS" if result.elongation_pct > 0 else "FAIL")
+            col3.metric("UTS < 1600 MPa", "PASS" if result.uts_MPa < 1600 else "FAIL")
+        
+        with tab2:
+            if explainer:
+                try:
+                    shap_values = explainer.explain(input_features)
+                    importance_df = pd.DataFrame({
+                        'Feature': explainer.feature_names,
+                        'SHAP Value': shap_values[0]
+                    }).sort_values('SHAP Value', key=abs, ascending=False).head(10)
+                    
+                    fig = go.Figure(go.Bar(
+                        x=importance_df['SHAP Value'],
+                        y=importance_df['Feature'],
+                        orientation='h',
+                        marker=dict(color='#1f77b4')
+                    ))
+                    fig.update_layout(
+                        title="Top 10 Feature Importance (SHAP)",
+                        xaxis_title="SHAP Value",
+                        yaxis_title="Feature",
+                        height=400
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+                except:
+                    st.info("SHAP explainability not available")
+            else:
                 st.info("SHAP explainability not available")
-        else:
-            st.info("SHAP explainability not available")
-    
-    with tab3:
-        export_df = pd.DataFrame([{
-            **params,
-            'predicted_yield_MPa': result.yield_strength_MPa,
-            'predicted_uts_MPa': result.uts_MPa,
-            'predicted_elongation_pct': result.elongation_pct
-        }])
         
-        csv = export_df.to_csv(index=False)
-        st.download_button(
-            label="Download Prediction as CSV",
-            data=csv,
+        with tab3:
+            export_df = pd.DataFrame([{
+                **params,
+                'predicted_yield_MPa': result.yield_strength_MPa,
+                'predicted_uts_MPa': result.uts_MPa,
+                'predicted_elongation_pct': result.elongation_pct
+            }])
+            
+            csv = export_df.to_csv(index=False)
+            st.download_button(
+                label="Download Prediction as CSV",
+                data=csv,
+                file_name="material_prediction.csv",
+                mime="text/csv"
+            )
+            
+            st.dataframe(export_df, use_container_width=True)
+    
+    except Exception as e:
+        st.error(f"Prediction failed: {e}")
+        st.info("Please check that models are trained. Run: python main.py train")
             file_name="material_prediction.csv",
             mime="text/csv"
         )
